@@ -15,7 +15,7 @@
 ### 坐标系变换
 
 上面这个问题其实在一些公司的面试中已经出现过，我相信一些人会想到利用极坐标的方式解决问题：
-···python
+```python
 def lineCheck(mat):
   dots = findAllForegroundDotInMat(mat) # 找到所有前景点
   lineMap = map() # key为直线方程，val为贯穿的点数
