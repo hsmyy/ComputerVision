@@ -91,7 +91,7 @@ theta(-PI,+PI), r:(-infinity,+infinity)
 
 ### 实现
 
-实现部分直接写代码，根据opencv进行了一定的改编，原[代码见|https://github.com/Itseez/opencv/blob/9c3f95782d095931c13c5dc48455ea2780524691/modules/imgproc/src/hough.cpp]：
+实现部分直接写代码，根据opencv进行了一定的改编，原代码见[这里](https://github.com/Itseez/opencv/blob/9c3f95782d095931c13c5dc48455ea2780524691/modules/imgproc/src/hough.cpp)：
 
 ```c++
 vector<int> _accum((numangle+2) * (numrho+2));
