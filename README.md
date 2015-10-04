@@ -8,12 +8,30 @@
 
 ## 目录
 
-### 直线检测/line detection
+### Line detection/直线检测
 
 #### [Hough Transformation/霍夫变换](line/hough.md)
+#### [LSD/线段检测](line/lsd.md)
 
-### 过滤/filter
+### Filter/过滤
 
 #### [Total Variation/全局变分](filter/tv.md)
-
+#### [Rolling Guidance Filter](filter/rolling.md)
 #### [Decolor/灰度化](filter/decolor.md)
+#### [Fourier Transformation/傅里叶变换](filter/fourier.md)
+#### [Wavelet Transformation/小波变换](filter/wavelet.md)
+
+### Segmentation/分割
+
+#### [Otsu&Niblack/二值化](seg/niblack.md)
+
+### Morphology/形态学
+
+#### [Skeleton Extraction/骨架提取](mor/skeleton.md)
+
+### Feature/特征抽取
+
+#### [Shape Context/形状上下文](feature/shapeContext.md)
+#### [Sift](feature/sift.md)
+#### [Hog](feature/hog.md)
+#### [LBP](feature/lbp.md)
