@@ -8,4 +8,12 @@
 
 ## 目录
 
+### 直线检测/line detection
+
 #### [Hough Transformation/霍夫变换](line/hough.md)
+
+### 过滤/filter
+
+#### [Total Variation/全局变分](filter/tv.md)
+
+#### [Decolor/灰度化](filter/decolor.md)
