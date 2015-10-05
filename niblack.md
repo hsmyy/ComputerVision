@@ -74,6 +74,83 @@ return len(set0) * len(set1) * (mean0 - mean1) ^ 2 / len(set) / len(set)
 下面的问题就简单了，对于一个离散化的图像中，像素值一共有256种选择，我们将256种选择各做一遍，找到那个最大的间隔就可以了，由于中间的结果可以反复利用，实际上这个算法可以非常快。
 ```python
 def otsu(img):
-  imgs = bin_sort([pixel for pixel in img])
-  
+  pixels = [0] * 256
+  for pixel in img:
+    pixels[pixel] += 1
+  sum = sum([pixel for pixel in img])
+  bestThreshold = 0
+  bestVal = 0
+  sum0 = 0
+  count0 = 0
+  len = img.rows * img.cols
+  for i in range(256):
+    sum0 += pixels[i] * i
+    count0 += pixels[i]
+    sum1 = sum - sum0
+    count1 = len - count0
+    loss = count0 * count1 * (sum0 / count0 - sum1 / count1) ^ 2 / len / len # 忽略除0
+    if loss > bestVal:
+      bestVal = loss
+      bestThreshold = i
+  # 最后完成二值化
+  return [1 if pixel > bestThreshold else 0 for pixel in img]
 ```
+
+可以看出，这个算法在效果上和KMeans差不多，但效率大概和1轮迭代的kmeans差不多。
+
+那么这个算法的效果怎么样？在满足上面的所有假设的情况下，效果很好。当然现实往往不是那么完美……
+
+### 现实中的二值化问题
+
+现实中的二值化问题究竟是什么样的呢？在现实中我们常常需要面对下面的问题：
+
+1. 光照不均匀。光线照在一张图上有明有暗，会导致有些字的周围是白色很清晰，而有些字的周围被阴影笼罩，很显然，otsu算法不胜任这个问题。
+2. 拍摄有问题。其结果和上面的类似。
+
+总之，直接使用otsu算法是不太靠谱的。
+
+### Niblack
+
+上面的算法可以叫做全局的二值化，也就是说一副图像上的所有像素都按照同样的方法做二值化，这样对于上面提到的问题显然是不太合理的，于是前人很自然地想到：为什么不把全局的算法改成局部的算法呢？
+
+于是乎一批局部算法应运而生，其中的经典当属Niblack，可以说这个算法的效果依然存在局限性，但是它的效果之好让现在的研究人员依然引用它坐二值化算法中的某一步。
+
+我们先考虑一个问题，局部的otsu算法靠不靠谱？
+```python
+def localOtsu(img, window):
+  res = [[0] * img.cols ] * img.rows
+  for y in range(img.rows):
+    for x in range(img.cols):
+      localImg = img(y - window / 2, x - window / 2, window, window) #这句是说我们取一个以y,x为中心，长宽为window的子矩阵。
+      localRes = otsu(localImg)
+      res[y][x] = localRes[window / 2][window / 2]
+  return res
+```
+
+我想在一些场景下它是靠谱的，当选中的局部窗口中只包含两种类型的像素,otsu的效果还算可以，但是一旦数目增多，前景背景和阴影全部出现，我想otsu算法不见得可以把阴影和背景分到一起去。另外一个问题是，otsu算法貌似在这个场合下速度会变慢不少。
+
+niblack的方法呢？
+```python
+def niblack(img, window, k):
+  res = [[0] * img.cols ] * img.rows
+  for y in range(img.rows):
+    for x in range(img.cols):
+      localImg = img(y - window / 2, x - window / 2. window, window)
+      threshold = mean(localImg) + k * std(localImg)
+      res[y][x] = 1 if img[y][x] > threshold else 0
+  return res
+```
+
+可以看出，和我们上面提出的算法只有一点差距。而且，这个算法实际上有提速的算法。
+
+那么这个算法究竟好在哪里？
+
+答案是好不了多少……
+
+但是，它的速度比前面的局部otsu方法要快。
+
+niblack算法的特点决定了它的功能。我们可以想象上面的threshold计算公式。前半部分表示一个基准位置，也就是说这个threshold不会小于平均值，而k的大小（一般取正数）决定threshold会向大的数字偏离多少，如果对于一张黑底白字的图片，那么k越大背景的精确度越大，前景的召回越大。所以niblack在实际中一般用来做精确定位背景和大概圈定前景的工作。
+
+### 终极问题：二值化的完美方案？
+
+二值化没有完美方案，更复杂靠谱的方案下回再说。
