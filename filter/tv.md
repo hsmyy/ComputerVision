@@ -12,7 +12,7 @@
 
 2. 将噪点变换成正常的图像点
 
-往往这两步会和在一起做
+往往这两步会合在一起做。
 
 ### 噪声的类型
 
@@ -86,7 +86,7 @@ def tv(img):
     return tv_score
 ```
 
-大家可以想象，姨夫图像如果每一点的像素值都一样，那这幅图象不会表达任何的含义，若是想表达一些含义，那么像素之间必须有像素差，而这些像素值就可以用梯度来表示。所以当这个全局变分很大时，表示图像的像素间差值很大，反之很小。
+大家可以想象，一副图像如果每一点的像素值都一样，那这幅图象不会表达任何的含义，若是想表达一些含义，那么像素之间必须有像素差，而这些像素值就可以用梯度来表示。所以当这个全局变分很大时，表示图像的像素间差值很大，反之很小。
 
 所以如果我们将一张图像的全局变分变小，那么他的一些细节就会变少。这就是全局变分的第一部分。
 
@@ -96,15 +96,16 @@ def fidelity(img1, img2):
     sum = 0
     for y in range(0, img1.rows):
         for x in range(0, img2.cols):
-            sum += math.abs(img1[y][x] - img2[y][x])
-    return sum
+            sum += (img1[y][x] - img2[y][x]) ^ 2
+    return math.sqrt(sum)
 ```
 
 这个部分是表达了两个图像的相似度，越相似值越小。概念比较简单。
 
 全局变分的理念就是将这两部分融合。已知原图ori_img和噪声图denoise_img，那么全局变分就是要求解下面这个最小化问题：
 ```python
-obj = fidelity(ori_img, denoise_img) + lambda * tv(ori_img)
+def obj(ori_img, denoise_img):
+    return fidelity(ori_img, denoise_img) + lambda * tv(ori_img)
 ```
 
 lambda是一个正则项，可作为超参数。
@@ -117,7 +118,7 @@ denoise_img = [0, 1, 1, 1, 1, 0, 1, 0]
 ```
 可以用上面的公式求得
 ```python
-tv(denoise_img) = 4
+obj(denoise_img, denoise_img) = 4
 ```
 如果我们找到了下面这个图像信号：
 ```python
@@ -125,14 +126,14 @@ ori_img = [0, 1, 1, 1, 1, 0, 0, 0]
 ```
 我们可以求出上面的目标函数的值(假设lambda=1)：
 ```python
-obj = 1 + 2 = 3
+obj(ori_img, denoise_img) = 1 + 2 = 3
 ```
 可见obj已经变小，这个图像信号得到了优化。
 
 而对于下面这个信号：
 ```python
 ori_img = [0, 1, 1, 1, 0, 0, 1, 0]
-obj = 4 + 1 = 5
+obj(ori_img, denoise_img) = 4 + 1 = 5
 ```
 
 可以看出，如果修改一个较宽的信号，那么他的全局变分不会变少，而对于一个较窄的信号，如果它完全被消除，那么全局变分就会被减少。所以这些较窄的信号就是全局变分的目标，而这些较窄的信号一般也就是噪声或者一些极小的细节信息。
