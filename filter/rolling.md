@@ -104,3 +104,7 @@ Rolling Guidance Filter的核心就是利用联合双边滤波解决问题，主
 ### 番外
 
 关于这个算法，它可以把它的高斯滤波部分进行加速，加速的方法是采用一种特殊的数据结构，想搞清这个问题的童鞋可以去看一篇长论文，里面的一章讲得很清楚。
+
+### Reference
+
+[Rolling Guidance Filter](http://www.cse.cuhk.edu.hk/leojia/projects/rollguidance/)
