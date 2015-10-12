@@ -49,3 +49,8 @@ cv::Mat GuidedFilterMono::filterSingleChannel(const cv::Mat &p) const
 
 作者在多年后提出了一个加速算法，主要是对图片先做了down-sampling,然后做up-sampling的滤波，速度又能有很大的提高。
 具体的解法可以参见paper内容。
+
+### Reference
+
+[http://research-srv.microsoft.com/en-us/um/people/kahe/eccv10/eccv10ppt.pdf] (PPT)
+[http://131.107.65.14/en-us/um/people/jiansun/papers/GuidedFilter_ECCV10.pdf] (Paper)
