@@ -52,5 +52,5 @@ cv::Mat GuidedFilterMono::filterSingleChannel(const cv::Mat &p) const
 
 ### Reference
 
-[http://research-srv.microsoft.com/en-us/um/people/kahe/eccv10/eccv10ppt.pdf] (PPT)
-[http://131.107.65.14/en-us/um/people/jiansun/papers/GuidedFilter_ECCV10.pdf] (Paper)
+[PPT](http://research-srv.microsoft.com/en-us/um/people/kahe/eccv10/eccv10ppt.pdf)
+[Paper](http://131.107.65.14/en-us/um/people/jiansun/papers/GuidedFilter_ECCV10.pdf)
