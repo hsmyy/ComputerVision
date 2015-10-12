@@ -141,3 +141,7 @@ obj(ori_img, denoise_img) = 4 + 1 = 5
 所以，全局变分的核心就是在确保和原图尽可能相近的情况下，减少一些小的细节信息。
 
 关于全局变分的介绍也就到这里了，至于它的解法……呵呵，这个问题有点复杂，有机会再详细介绍。
+
+### Reference
+
+[Recent developments in total variation image restoration](http://www.math.lsa.umich.edu/~esedoglu/Papers_Preprints/chan_esedoglu_park_yip.pdf)
