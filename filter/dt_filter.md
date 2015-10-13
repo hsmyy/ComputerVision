@@ -53,4 +53,9 @@ def manifold(img, sigmaS, sigmaR):
 
 ### 总结
 
+### Reference
+
+[Paper](http://www.inf.ufrgs.br/~eslgastal/DomainTransform/Gastal_Oliveira_SIGGRAPH2011_Domain_Transform.pdf)
+
+[Slide](http://vis.berkeley.edu/courses/cs294-69-fa11/wiki/images/3/3a/Domain_Transform_Slides.pdf)
 
