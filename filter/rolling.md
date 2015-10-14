@@ -97,6 +97,35 @@ def rollingGuidanceFilter(img, sigmaS, sigmaI, window, iteration):
 
 一般的实验中，如果尺度设计合理，5到6轮之后就会得到好的结果。
 
+### 扩展
+
+这个算法的另外一个贡献是它的框架，再做完第一步的高斯滤波后，这张图可以做guidance map，那么一些相近的算法也可以套上来，比方说guided filter,domain transform filter等。
+
+guided filter的使用相对比较直观：
+```python
+def rollingGuidanceWithGuidedFilter(img, sigmaS, window, epsilon, iteration):
+  ref = [[gaussian(img, y, x, window, sigmaS) for x in img.cols] for y in img.rows]
+  for i in range(iteration):
+    newRef = GuidedFilter(img, ref, window, epsilon)
+  return newRef
+```
+关于guided filter的内容可以参考本系列介绍guided filter的文章。
+
+domain transform filter的使用稍微有点晦涩，这里可以稍微拆开一点，具体内容还是见本系列介绍dt filter的文章。
+```python
+def rollingGuidanceWithDomainTransformFilter(img, sigmaS, window, iteration):
+  ref = [[gaussian(img, y, x, window, sigmaS) for x in img.cols] for y in img.rows]
+  for i in range(iteration):
+    transformedDomainX, transformedDomainY = dt(ref)
+    newRef = img
+    for j in range(3): # 论文上说3轮就够了
+      newRef = horizontalBilateral(newRef, transformedDomainX)
+      newRef = verticalBilateral(newRef, transformedDomainY)
+  return newRef
+```
+
+最快的就是Domian Transform Filter,它的加速可以达到1M pixel 50ms，算是非常快了。
+
 ### 总结
 
 Rolling Guidance Filter的核心就是利用联合双边滤波解决问题，主要的思想就是将边缘信息进行分类，首先保证去除texture信息，然后逐步恢复主体边缘。
