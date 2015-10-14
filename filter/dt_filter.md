@@ -16,9 +16,25 @@ paper里面提到，作者希望采用类似joint bilateral filter的方法去�
 
 Manifold这个东西是拓扑学里面比较经典的一个概念。举个例子来说在3维空间下一个卷曲的2维平面就算是一个manifold(不严谨，只做举例)。manifold的一个特点就是它的distance metric和一般欧式空间的距离测度不同，这种感觉就好像游戏里面的迷宫一样，明明你要到的地方就在眼前（欧式空间很近），但是你需要绕很大的圈才能到达（manifold上的距离很远）。
 
-利用流型的模型概念，作者解决了他担心的问题：如何在降维的同时保持原有的距离尺度？降维固然能提高速度，但是如果原本相近的像素在降维后变得远了，是会影响效果的。作者这里说明了利用流型降维是靠谱的。
+前面提到bilateral filter是可以做到edge-preseving的效果的，这个效果来自于原始空间的距离测度。在当前的距离下，利用双边滤波就可以达到应有的效果。因此如果想利用流型做降维，那么就要保证降维后的距离和原始空间的距离保持一致。作者首先考虑的就是把5维降到2维，但是发现除非采用近似算法，不然无法达到这样的效果，而近似算法必然带来精度的降低，于是作者转而探索降维到1维的isometric的方法。
 
-经过长长的推倒，最终得出了降维的公式：
+### 1D的降维之路
+
+作者首先将问题转化为2D到1D的domain transform，如何保证转换后的isometric呢？作者经过一定的推导得到了曲线积分的方式，也就是用geodesic metric来替代原始的L1 欧式距离。曲线积分可以很好地保留2D空间下的距离，而且它的单调递增特性也使得新空间的一些基本属性得以保存（metric space的4大特性？）
+
+当然，这样搞完确实是实现了降维，但是原始的双边滤波人家有两个方差参数sigmaS和sigmaR的，你现在丢掉了这个怎么让人家调参数啊？所以作者又开始思考其他的方法。
+
+作者基于一个特性：对于一个卷积操作，把filter的scale扩大1/a倍相当于把signal的scale扩大a倍，所以作者想到了把filter的参数encode到transformed domain的方法：
+
+1）对于signal每一维的信息:i，引入一个参数a(i);
+
+2）将每一维信息的scale扩大a倍
+
+3）应用domain transform
+
+4) 用transform后的kernel进行filter
+
+基于上面这个大发现，和长长的推倒，最终将两个参数嵌入了signal中，得出了降维的公式：
 ```python
 def manifold(img, sigmaS, sigmaR):
 	ctx = array((img.rows, img.cols))
@@ -33,7 +49,17 @@ def manifold(img, sigmaS, sigmaR):
 	return ctx, cty 
 ``` 
 
-这里实际上是用到了求曲线长度的积分公式，作者将图像分解成水平方向和垂直方向，把每一行或每一列的梯度想象成一个1维的manifold，然后利用曲线长度积分转换过来
+这里实际上是用到了求曲线长度的积分公式，作者将图像分解成水平方向和垂直方向，把每一行或每一列的梯度想象成一个1维的manifold，然后利用曲线长度积分转换过来。
+
+### 分析
+
+作者将上面的domain transform公式转换维偏微分方程进行分析sigmaS, sigmaR和patch图像的TV（total variation）与filter kernel的关系：
+
+1) 当sigmaR趋向于无穷大，filter退化成gaussian filter;趋近于0时filter相当于identity;
+
+2）当sigmaS趋近于无穷大，它将变得不起作用，filter的效果将取决于sigmaR和patch signal TV;趋近于0时filter相当于identity;
+
+3）当patch signal的TV比较大，一般认为这是个核心的边缘信息，filter将不对其起作用;趋近于0时，一般认为这是次要边缘或者噪声，filter的威力会剧增。
 
 ### 2D上的过滤应用
 
