@@ -159,6 +159,102 @@ virtual const vec_t& forward_propagation(const vec_t& in, size_t index) {
          this->output_[index][i] = max_value;
      }
  });
- return this->next_ ? this->next_->forward_propagation(this->output_[index], index) : this->output_[index];
 }
 ```
+
+### 反向传播
+
+首先全连接层
+
+```c++
+const vec_t& back_propagation(const vec_t& current_delta, size_t index) {
+ const vec_t& curr_delta = this->filter_.filter_bprop(current_delta, index); // 默认返回current_delta本身
+ const vec_t& prev_out = this->prev_->output(index);
+ const activation::function& prev_h = this->prev_->activation_function();
+ vec_t& prev_delta = this->prev_delta_[index];
+ vec_t& dW = this->dW_[index];
+ vec_t& db = this->db_[index];
+
+ // 这个循环用来计算上一层的残差，也就是sum(本层和上层的权重*本层残差)*上层激活函数的导数
+ for (int c = 0; c < this->in_size_; c++) {
+     // propagate delta to previous layer
+     // prev_delta[c] += current_delta[r] * W_[c * out_size_ + r]
+     prev_delta[c] = vectorize::dot(&curr_delta[0], &this->W_[c*this->out_size_], this->out_size_);
+     prev_delta[c] *= prev_h.df(prev_out[c]);
+ }
+ // 这个循环把本层的权重更新进行计算
+ for_(this->parallelize_, 0, this->out_size_, [&](const blocked_range& r) {
+     // accumulate weight-step using delta
+     // dW[c * out_size + i] += current_delta[i] * prev_out[c]
+     for (int c = 0; c < this->in_size_; c++)
+         vectorize::muladd(&curr_delta[0], prev_out[c], r.end() - r.begin(), &dW[c*this->out_size_ + r.begin()]);
+
+     for (int i = r.begin(); i < r.end(); i++) 
+         db[i] += curr_delta[i];
+ });
+}
+```
+
+然后是卷积层
+```c++
+virtual const vec_t& back_propagation(const vec_t& current_delta, size_t index) {
+ const vec_t& prev_out = this->prev_->output(index);
+ const activation::function& prev_h = this->prev_->activation_function();
+ vec_t& prev_delta = this->prev_delta_[index];
+
+ // 计算上一层的残差
+ for_(this->parallelize_, 0, this->in_size_, [&](const blocked_range& r) {
+     for (int i = r.begin(); i != r.end(); i++) {
+         const wo_connections& connections = in2wo_[i];
+         float_t delta = 0.0;
+
+         for (auto connection : connections) 
+             delta += this->W_[connection.first] * current_delta[connection.second]; // 40.6%
+
+         prev_delta[i] = delta * scale_factor_ * prev_h.df(prev_out[i]); // 2.1%
+     }
+ });
+ // 分别更新w和b的权重
+ for_(this->parallelize_, 0, weight2io_.size(), [&](const blocked_range& r) {
+     for (int i = r.begin(); i < r.end(); i++) {
+         const io_connections& connections = weight2io_[i];
+         float_t diff = 0.0;
+
+         for (auto connection : connections) // 11.9%
+             diff += prev_out[connection.first] * current_delta[connection.second];
+
+         this->dW_[index][i] += diff * scale_factor_;
+     }
+ });
+
+ for (size_t i = 0; i < bias2out_.size(); i++) {
+     const std::vector<layer_size_t>& outs = bias2out_[i];
+     float_t diff = 0.0;
+
+     for (auto o : outs)
+         diff += current_delta[o];    
+
+     this->db_[index][i] += diff;
+ } 
+}
+```
+
+最后是max_pooling:
+```c++
+virtual const vec_t& back_propagation(const vec_t& current_delta, size_t index) {
+ const vec_t& prev_out = this->prev_->output(index);
+ const activation::function& prev_h = this->prev_->activation_function();
+ vec_t& prev_delta = this->prev_delta_[index];
+ // 这里主要是做残差的传导
+ for_(this->parallelize_, 0, this->in_size_, [&](const blocked_range& r) {
+     for (int i = r.begin(); i != r.end(); i++) {
+         int outi = in2out_[i];
+         prev_delta[i] = (out2inmax_[outi] == i) ? current_delta[outi] * prev_h.df(prev_out[i]) : 0.0;
+     }
+ });
+ return this->prev_->back_propagation(this->prev_delta_[index], index);
+}
+```
+
+具体的公式请参阅其他的文章，这里不做介绍
+
