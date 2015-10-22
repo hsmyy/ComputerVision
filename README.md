@@ -8,6 +8,10 @@
 
 ## 目录
 
+### BackGround/背景知识
+
+#### [Differential Geometry/微分几何](differentialGeometry.md)
+
 ### Line detection/直线检测
 
 #### [Hough Transformation/霍夫变换](line/hough.md)
