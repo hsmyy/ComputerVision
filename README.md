@@ -30,6 +30,10 @@
 #### [Fourier Transformation/傅里叶变换](filter/fourier.md)
 #### [Wavelet Transformation/小波变换](filter/wavelet.md)
 
+### Contrast Enhancement/对比增强
+
+#### [AHE&CLAHE](clahe.md)
+
 ### Segmentation/分割
 
 #### [Otsu&Niblack/二值化](seg/niblack.md)
