@@ -109,3 +109,13 @@ def judgeDotPlaneRelationship(dot, plane):
 def cycloid(theta):
   return [a * theta - a * sin(theta), a - a * cos(theta)]
 ```
+
+### 第六课
+
+速度：等于位移/时间
+
+加速度：等于速度/时间
+
+弧长：等于速度在时间上的积分
+
+从开普勒第二定律推导到行星的加速度与行星到太阳的方向同向（精彩）
