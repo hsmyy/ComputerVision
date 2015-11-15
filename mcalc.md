@@ -70,3 +70,42 @@ def vecCrossProduct(a,b):
 
 略
 
+### 第五课
+
+```python
+class Plane:
+  public _init_(self, vec, offset):
+    this.vec = vec
+    this.offset = offset
+
+class Line:
+  public _init_(self, direction, offset):
+    this.direction = direction
+    this.offset = offset
+```
+直线方程可以用两个点表示，也可以用约定某个时间t来表示：
+
+x(t) = at + b
+
+y(t) = ct + d
+
+z(t) = et + f
+
+判断一个点在平面的上面还是下面：
+```python
+# return: 1 means up, 0 means on plan, -1 means down
+def judgeDotPlaneRelationship(dot, plane):
+  dotProduct = vecDotProduct(dot, plane.vec)
+  if dotProduct > offset:
+    return 1
+  elif dotProduct == offset:
+    return 0
+  else:
+    return -1
+```
+
+摆线的计算公式（推导得很精彩）
+```python
+def cycloid(theta):
+  return [a * theta - a * sin(theta), a - a * cos(theta)]
+```
