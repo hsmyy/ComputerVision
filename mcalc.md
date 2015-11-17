@@ -124,3 +124,8 @@ def cycloid(theta):
 
 多变量函数的画图问题，采用等高图所带来的好处，偏微分，偏微分与等高线的关系
 
+### 第九，十课
+
+极值：一阶导为0
+
+二阶hessian矩阵：det = 0:无法确定是否维极值，<0:saddle point,>0: a>0:minimum,a<0:maximum
