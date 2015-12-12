@@ -6,7 +6,8 @@
 
 ### 目录
 
-#### [vector and matrix/向量和矩阵](vector.md)
+#### [vector/向量](vector.md)
+#### [matrix/矩阵](matrix.md)
 #### [partial-derivatives/偏微分](partial.md)
 #### [double-integral/二重积分](double.md)
 #### [triple-integral/三重积分](triple.md)
