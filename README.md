@@ -10,7 +10,8 @@
 
 ### BackGround/背景知识
 
-#### [Differential Geometry/微分几何](differentialGeometry.md)
+#### [Differential Geometry/微分几何](background/differentialGeometry.md)
+#### [Multi-variable Calculus/多变量微积分](background/mcalc/README.md)
 
 ### Line detection/直线检测
 
