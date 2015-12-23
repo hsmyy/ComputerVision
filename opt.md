@@ -81,6 +81,25 @@ def simple_backtracking(g, gd, step, c1, c2):
 ### interpolation
 
 ```python
+def interpolation(f, fd, alpha, c2):
+  lo = 0.0
+  hi = 1.0
+
+  for i in range(0, 20):
+    if wolf1(f, fd, alpha):
+      if wolf_strong(f, fd, alpha, c2):
+        return alpha
+
+    half = (lo+hi)/2.0
+    alpha = - (fd(lo)*hi*hi) / (2*(f(hi)-f(lo)-fd(lo)*hi))
+
+    if alpha < lo or alpha > hi: # quadratic interpolation failed. reduce by half instead
+      alpha = half
+    if fd(alpha) > 0:
+      hi = alpha
+    elif fd(alpha) <= 0:
+      lo = alpha
+  return alpha
 ```
 
 ## steepest descent/最速下降法
