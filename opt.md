@@ -36,3 +36,51 @@ def f(x):
 
 ## 算法的两个部分
 
+ * 计算梯度
+ * 计算步长
+
+## 步长计算理论
+
+### Wolfe condition && Wolfe strong condition
+
+Wolfe condition要求步长能够满足足够的下降。
+
+Wolfe strong condition, 也叫curvature condition, 它通过计算梯度来判断下一步的计算（大梯度可以接着算，小梯度可以歇歇）
+
+```python
+# step表示步长
+# grad表示梯度
+g = lambda step: f(x + step * grad)
+gd = lambda step: f(x + step * grad) * grad
+
+# c1通常设为1e-4
+def wolfe_normal(x): # 公式定义
+  return f(x + alpha * step) <= f(x) + c1 * alpha * df(x) * step
+
+def wolfe(g, gd, step, c1): # 代码中的wolfe
+  return g(step) <= g(0) + c1 * alpha * gd(step)
+  
+# c2通常设为0.9
+def wolfe_strong_normal(x): # 公示定义
+  return abs(df(x + alpha * step)) >= c2 * df(x) * step
+
+def wolfe_strong(g, gd, step, c2):
+  return abs(gd(alpha)) <= -c2 * gd(0)
+```
+
+### simple_backtracking/简单回退
+
+```python
+def simple_backtracking(g, gd, step, c1, c2):
+  rate = 0.5
+  while not(wolfe(g, gd, step, c1) or wolfe_strong(g, gd, step, c2)):
+    step = rate * step
+  return step
+```
+
+### interpolation
+
+```python
+```
+
+#
