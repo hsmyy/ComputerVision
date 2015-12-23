@@ -83,4 +83,93 @@ def simple_backtracking(g, gd, step, c1, c2):
 ```python
 ```
 
-#
+## steepest descent/最速下降法
+
+```python
+def steepest_descent(f, fd, x, max_iterations, precision, callback):
+  for i in range(0, max_iterations): # 进行有限的循环迭代，也可以把下面的if判断移过来
+    direction = - fd(x)  # 求方向，也就是当前的负梯度（与切线方向正交，代表了最快的下降方向）
+    alpha = find_step_length(f, fd, x, 1.0, direction, c2=0.9)  # 求步长
+    x = x + alpha*direction # 更新参数
+    callback(i, direction, alpha, x)
+    if linalg.norm(direction) < precision: # 如果解足够精确，则停止
+      break
+  return x
+```
+
+## newton/牛顿法
+```python
+def newton(f, fd, fdd, x, max_iterations, precision, callback):
+  for i in range(1, max_iterations):  # 迭代循环
+    gradient = fd(x)  # 求1阶导向量
+    hessian = fdd(x)  # 求2阶导矩阵
+
+    direction = -linalg.solve(hessian, gradient) # 因为方向等于gradient/hessian,也就相当于一个Ax=b的解方程问题，A是hessian
+    alpha = find_step_length(f, fd, x, 1.0, direction, c2=0.9) # 求步长
+    x_prev = x # 保存上一步的结果
+    x = x + alpha*direction # 更新参数
+
+    callback(i, direction, alpha, x)
+
+    if linalg.norm(x - x_prev) < precision: # 如果没有足够大的更新，则结束
+      break
+  return x
+```
+
+## quasi-newton/拟牛顿
+```python
+def quasi_newton(f, fd, x, max_iterations, precision, callback):
+  I = identity(x.size)
+  H = I
+  x_prev = x
+  f_prev = f
+  fd_prev = fd
+
+  for i in range(1, max_iterations):
+    gradient = fd(x)
+    direction = -H * matrix(gradient).T
+    direction = squeeze(asarray(direction))
+
+    alpha = find_step_length(f, fd, x, 1.0, direction, c2=0.9)
+    x_prev = x
+    x = x + alpha*direction
+
+    callback(i, direction, alpha, x)
+
+    if linalg.norm(x - x_prev) < precision:
+      break
+
+    s = matrix(x - x_prev).T
+    y = matrix(fd(x) - fd(x_prev)).T
+    rho = float(1 / (y.T*s))
+    H = (I - rho*s*y.T)*H*(I - rho*y*s.T) + rho*s*s.T
+  return x
+```
+
+## conjugate gradient/共额梯度
+```python
+def conjugate_gradient(f, fd, x, max_iterations, precision, callback):
+  direction = -fd(x)
+  gradient = None
+  gradient_next = matrix(fd(x)).T
+  x_prev = None
+
+  for i in range(1, max_iterations):
+    alpha = find_step_length(f, fd, x, 1.0, direction, c2=0.1)
+    x_prev = x
+    x = x + alpha*direction
+
+    callback(i, direction, alpha, x)
+
+    gradient = gradient_next
+    gradient_next = matrix(fd(x)).T
+
+    if linalg.norm(x - x_prev) < precision:
+      break
+
+    BFR = (gradient_next.T * gradient_next) / (gradient.T * gradient)
+    BFR = squeeze(asarray(BFR))
+
+    direction = -squeeze(asarray(gradient_next)) + BFR*direction
+  return x
+```
