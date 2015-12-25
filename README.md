@@ -13,6 +13,10 @@
 #### [Differential Geometry/微分几何](background/differentialGeometry.md)
 #### [Multi-variable Calculus/多变量微积分](background/mcalc/README.md)
 
+### Optimized/优化
+
+#### [Basic/优化入门](opt/opt.md)
+
 ### Line detection/直线检测
 
 #### [Hough Transformation/霍夫变换](line/hough.md)
@@ -33,11 +37,16 @@
 
 ### Contrast Enhancement/对比增强
 
-#### [AHE&CLAHE](clahe.md)
+#### [AHE&CLAHE](enhance/clahe.md)
 
 ### Segmentation/分割
 
 #### [Otsu&Niblack/二值化](seg/niblack.md)
+
+### Dimension Reduction/降维
+
+#### [Product Quantization](dimensionR/pq.md)
+#### [Local Linear Embedding](dimensionR/lle.md)
 
 ### Morphology/形态学
 
