@@ -77,7 +77,7 @@ x(n+1) = x(n) + step[n] * r(n)
 
 说明如果能中这样的奖，事情一下子就好办多了。
 
-### 定理3：如果A是对称的，那么利用Steepest Descent只需要一步。
+### 定理3：如果A是对称的且只有一个特征值，那么利用Steepest Descent只需要一步。
 
 ```python
 # 对于一个对称的矩阵A，我们可以得到n个正交的特征向量，因为改变特征向量的scale对特征值没有影响，
@@ -85,4 +85,35 @@ x(n+1) = x(n) + step[n] * r(n)
 v(i) * v(j) = 0 if i != j else 1
 
 # 因为n个特征向量是相互正交的，所以它们可以span整个向量空间，所以任意一个残差可以有特征向量的线性组合构成。
+e(i) = V * coef # V是特征向量组成的矩阵，coef是每个向量对应的参数
+# 于是有
+r(i) = -A * e(i) = -lambda * e(i) = -sum([lambda[j] * coef[j] * V[:,j] for j in range(size(coef))])
+e(i) * e(i) = sum([coef(j)^2 for j in range(size(coef))])
+e(i) * A * e(i) = sum([coef(j)^2 * lambda(j) for j in range(size(coef))])
+r(i) * r(i) = sum([coef(j)^2 * lambda(j) ^2])
+r(i) * A * r(i) = sum([coef(j)^2 * lambda(j)^3])
+
+# 对于之前的那个公式，有
+e(i+1) = e(i) = (r(i) * r(i)) / (r(i) * A * r(i)) * r(i) # 根据上面的替换
+=> e(i+1) = e(i) * (sum([coef(j)^2 * lambda(j)^2])) / (sum([coef(j)^2 * lambda(j)^3])) * r(i)
+
+# 如果只有一个特征值，那么lambda(i) == lambda(j),所以
+e(i+1) = e(i) + (lambda^2 * sum(coef(j)^2)) / (lambda^3 * sum(coef(j)^2) * (-lambda * e(i))
+=> e(i+1) = 0
 ```
+
+（证毕）
+
+## 一些变化
+
+### Learning rate
+
+在上面的算法里，我们可以求出最好的step，但是有时求最好的step比较复杂，而效果也不一定有多好，所以会直接用一个参数表示步长，如0.1, 0.01等等。
+
+还有的算法里会利用Wolfe定理和line search的方法求步长，都是一些计算量较小的算法。
+
+### Momentum
+
+在最速下降法的过程中，如果初始值不好，很容易走成锯齿状的更新路线，而这样走收敛是非常慢的。所以momentum的作用是相信每一步迭代的潜在价值，在下一步更新时加入上一步的信息，这样能让锯齿状的路线走得快一些。
+
+
