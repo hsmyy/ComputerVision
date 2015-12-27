@@ -17,6 +17,7 @@
 
 #### [Basic/优化入门](opt/opt.md)
 #### [Steepest Descent/最速下降法](opt/steepest.md)
+#### [Conjugate Descent/共轭梯度法](opt/cg.md)
 
 ### Line detection/直线检测
 
