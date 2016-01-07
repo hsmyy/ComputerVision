@@ -15,9 +15,11 @@
 
 ### Optimized/优化
 
-#### [Basic/优化入门](opt/opt.md)
+#### [Code/优化代码](opt/code.py)
 #### [Steepest Descent/最速下降法](opt/steepest.md)
 #### [Conjugate Descent/共轭梯度法](opt/cg.md)
+#### [Convex Function/凸函数](opt/convex.md)
+#### [Conjugate Function/共轭函数](opt/conjugatef.md)
 
 ### Line detection/直线检测
 
@@ -44,6 +46,7 @@
 ### Segmentation/分割
 
 #### [Otsu&Niblack/二值化](seg/niblack.md)
+#### [LevelSet/水平集](seg/levelset.md)
 
 ### Dimension Reduction/降维
 
